@@ -2,11 +2,22 @@
 <html lang = "en">
 <header>
     <title>Gridiots</title>
-    <link rel = "stylesheet" href = "style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <link rel = "stylesheet" href = "../styles/home_style.css">
     
 </header>
 <body>
-    <canvas id = "game_window"width = "window.innerWidth" height = "window.innerHeight"></canvas>
-</body>
+    <h3>Map Options</h3>
+    <select id="Map_Options">
+        <option value="Standard (Grasslands)" selected>Grasslands</option>
+        <option value="Forrest">Forrest</option>
+        <option value="Ocean">Ocean</option>
+        <option value="Desert">Desert</option>
+        <option value="Void">Void</option>
+    </select>
+    <button >Start Game</button>
 </html>
+<script src = "../scripts/game.js"></script>
 
