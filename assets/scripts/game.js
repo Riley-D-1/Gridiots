@@ -33,48 +33,42 @@ class player{
     }
     remove_random() {
         if (this.troops_pos.length === 0) return; // nothing to remove
-        let index = Math.floor(Math.random() * this.troops.length);
+        let index = Math.floor(Math.random() * this.troops_pos.length);
         let pos = this.troops_pos[index];
         this.troops_pos.splice(index, 1);
         game_array[pos.row][pos.col] = 0;
-
     }
+
 }
-class bot{
+class bot {
     constructor(){
-        this.name = name_gen(1)
-        this.troops_pos = []; // store troop position
+        this.name = name_gen(1);
+        this.troops_pos = [];
     }
     bot_place(enemy_reinforcements){
         for (let i = 0; i < enemy_reinforcements; i++) {
             let row = Math.floor(Math.random() * game_array.length);
-            let col = Math.floor(Math.random() * game_array[row].length);
-
-            // only place on empty cells
+            let col = Math.floor(Math.random() * game_array[row].length)
             if (game_array[row][col] === 0) {
-                enemy_.add_troop(row, col);
+                this.add_troop(row, col);
             } else {
-                i--; // retry if occupied
+                i--
             }
         }
-    
-        // Once both sides are done, move to fighting
-        stage = "fighting";
-    }
-    name_(){
-        return this.name
+        stage = "fighting"
     }
     add_troop(row, col) {
         this.troops_pos.push({ row, col });
         game_array[row][col] = "r"; 
-    }
-    remove_random() {
+    }remove_random() {
         if (this.troops_pos.length === 0) return; // nothing to remove
-        let index = Math.floor(Math.random() * this.troops.length);
+        let index = Math.floor(Math.random() * this.troops_pos.length);
         let pos = this.troops_pos[index];
         this.troops_pos.splice(index, 1);
         game_array[pos.row][pos.col] = 0;
-
+    }
+    name_(){
+        return this.name
     }
 }
 // Reappearance of this function lol
@@ -108,6 +102,7 @@ function place(x,y){
     game_array[row][col] = "b";
     let cell_x = col * cell_width;
     let cell_y = row * cell_height;
+    user_.add_troop(row, col);
     draw_grid_guy(cell_x,cell_y)
 
 }
@@ -247,45 +242,51 @@ function battle_stats(user, enemy) {
     }
 }
 
-function battle(user,enemy){
+function battle(user, enemy) {
+    const round_info = document.getElementById("round_info");
+    if (round_info) {
+        round_info.style.display = "none";
+    }
     ctx.font = "bold 48px Pixelify Sans";
     ctx.textAlign = "center";
-    bg_colour = '#00e1ffff'
-    let dots = 0
-    let direction = 1
+    let bg_colour = '#00e1ffff'
+    let dots = 0;
+    let direction = 1;
+
     let loading_loop = setInterval(() => {
-        if (dots === 3){
-            direction = -1
-        }else if(dots === 0){
-            direction = 1
-        }else{
-            // Do nothing
+        if (dots === 3) {
+            direction = -1;
+        } else if (dots === 0) {
+            direction = 1;
         }
-        dots+= direction 
-        // janky joining thing based on count of dots
-        let dots_ = ".".repeat(dots)
-        let message = `Fighting${dots_}`
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = bg_colour
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = "#ffffff"
-        ctx.fillText(message, canvas.width / 2, canvas.height / 2)
+        dots += direction;
+
+        let dots_ = ".".repeat(dots);
+        let message = `Fighting${dots_}`;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = bg_colour;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(message, canvas.width / 2, canvas.height / 2);
     }, 600);
     setTimeout(() => {
-        clearInterval(loading_loop)
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        clearInterval(loading_loop);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = bg_colour;
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.fillStyle = "#ffffff"
-        ctx.fillText("Battle Complete!", canvas.width / 2, canvas.height / 2)
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("Battle Complete!", canvas.width / 2, canvas.height / 2);
         setTimeout(() => {
-            // battle calcs
-            battle_stats(user,enemy)
-            stage = "place"
-            round_counter+=1
-        }, 1000); 
+            battle_stats(user, enemy);
+            round_counter++
+            battle_in_progress = false
+            if (round_counter >= 5) {
+                stage = "scoring";
+            } else {
+                stage = "place";
+            }
+        }, 1000);
     }, 5000);
-
 }
 
 function trace_known_grids(){
@@ -339,24 +340,37 @@ function place_stage(){
 
 
 function scoring(){
-    // Very simple system that checks the amount of people for each team at the end
-    let red_points = 0
-    let blue_points = 0
+    const round_info_idk = document.getElementById("round_info");
+    round_info_idk.style.display = "none";
+    let red_points = 0;
+    let blue_points = 0;
     for (let row = 0; row < game_array.length; row++) {
         for (let col = 0; col < game_array[row].length; col++) {
             let cell_val = game_array[row][col];
-            if (cell_val === "r"){
-                red_points+=1
-            }else if (cell_val === "b"){
-                blue_points+=1
-            }else{
-                // DO nothing
-            }
+            if (cell_val === "r") red_points++;
+            else if (cell_val === "b") blue_points++;
         }
     }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#00e1ffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 48px Pixelify Sans";
+    ctx.textAlign = "center";
+    ctx.fillText(`Blue: ${blue_points}  Red: ${red_points}`, canvas.width/2, canvas.height/2);
+
+    if (blue_points > red_points) {
+        ctx.fillText("Blue Wins!", canvas.width/2, canvas.height/2 + 60);
+    } else if (red_points > blue_points) {
+        ctx.fillText("Red Wins!", canvas.width/2, canvas.height/2 + 60);
+    } else {
+        ctx.fillText("It's a Draw!", canvas.width/2, canvas.height/2 + 60);
+    }
 }
+
 // Main function
 function main(){
+    let battle_in_progress = false;
     // Hide button
     const start_btn = document.getElementById("start_btn");
     start_btn.style.display = "none";
@@ -386,14 +400,21 @@ function main(){
     document.addEventListener("click", function(event) {
         if (stage === "place" && user_reinforcements > 0){
             const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left
-            const y = event.clientY - rect.top
-            place(x, y, "blue")
-            user_reinforcements--
-            update_user_info(`You can place ${user_reinforcements} troops`)
-
-            if (user_reinforcements === 0){
-                enemy_.bot_place(); // once user is done, enemy places
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            let cell_width = canvas.width / 16;
+            let cell_height = canvas.height / 8;
+            let col = Math.floor(x / cell_width);
+            let row = Math.floor(y / cell_height);
+            if (game_array[row][col] === 0) {
+                user_.add_troop(row, col);
+                user_reinforcements--;
+                update_user_info(`You can place ${user_reinforcements} troops`);
+                if (user_reinforcements === 0){
+                    enemy_.bot_place(enemy_reinforcements);
+                }
+            } else {
+                console.log("Cell already occupied!");
             }
         }
     });
@@ -405,15 +426,15 @@ function main(){
             // 
         } else if (stage === "start"){
             // No action
-        } else if (stage === "fighting"){
-            battle(user_,enemy_)
-            if (round_counter >= 5){
-                stage = "scoring";
+        } else if (stage === "fighting") {
+            if (!battle_in_progress) {
+                battle_in_progress = true;
+                battle(user_, enemy_);
             }
         }else if (stage === "scoring"){
             scoring()
             setTimeout(() => {
-                window.location.href = "/index.html";
+                window.location.href = "assets/pages/index.html";
             }, 2000);
             
         }else{
