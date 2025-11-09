@@ -4,7 +4,9 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 ctx.imageSmoothingEnabled = false;
 let grid_people = []
+let round_counter = 0
 // 16 acros ways and 8 down
+
 let game_array = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -17,47 +19,54 @@ let game_array = [
 ]
 
 class player{
-    constructor(){
-    }
-    map(){
-        // Split by half 
-    }
-}
-
-class user extends player{
     constructor(name){
-        super();
         this.name = name
+        this.troops_pos = []; // store troop positions
     }
     name_(){
         return this.name
     }
-}
+    add_troop(row, col) {
+        this.troops_pos.push({ row, col });
+        game_array[row][col] = "b"; 
+    }
+    remove_random() {
+        if (this.troops_pos.length === 0) return; // nothing to remove
+        let index = Math.floor(Math.random() * this.troops.length);
+        let pos = this.troops_pos[index];
+        this.troops_pos.splice(index, 1);
+        game_array[pos.row][pos.col] = 0;
 
-class bot extends player{
+    }
+}
+class bot{
     constructor(){
-        super();
         this.name = name_gen(1)
+        this.troops_pos = []; // store troop position
     }
-    place(){
-            function place(value = 1) {
-        // pick a random row (0–7)
+    bot_place(){
+        // pick a random row and column
         let row = Math.floor(Math.random() * game_array.length);
-
-        // pick a random column only in his half (0–7)
-        let col = Math.floor(Math.random() * (game_array[row].length / 2));
-
+        let col = Math.floor(Math.random() * game_array[row].length);
         // place the value
-        game_array[row][col] = value;
-
-        return [row, col]; // return coordinates
+        game_array[row][col] = "p";
     }
-        }
     name_(){
         return this.name
     }
-}
+    add_troop(row, col) {
+        this.troops_pos.push({ row, col });
+        game_array[row][col] = "r"; 
+    }
+    remove_random() {
+        if (this.troops_pos.length === 0) return; // nothing to remove
+        let index = Math.floor(Math.random() * this.troops.length);
+        let pos = this.troops_pos[index];
+        this.troops_pos.splice(index, 1);
+        game_array[pos.row][pos.col] = 0;
 
+    }
+}
 // Reappearance of this function lol
 function name_gen(num_of_names){
     // This one is done too
@@ -78,7 +87,7 @@ function name_gen(num_of_names){
     return shuffled.slice(0, num_of_names);
 }
 
-function place(x,y,team){
+function place(x,y){
     // First is currently 16 the other is 8
     let cell_width = canvas.width / 16;
     let cell_height = canvas.height / 8;
@@ -86,44 +95,38 @@ function place(x,y,team){
     // Top left corner of that cell fyi
     let col = Math.floor(x / cell_width);
     let row = Math.floor(y / cell_height);
+    game_array[row][col] = "b";
     let cell_x = col * cell_width;
     let cell_y = row * cell_height;
-    draw_grid_guy(cell_x,cell_y,team)
+    draw_grid_guy(cell_x,cell_y)
+
 }
 
 function change_array(column,row,value){
     game_array[row][column] = value;
 }
 
-
 function draw_grid(map_type){
     if (map_type === "standard"){
-        // Light greeen
+        // picks a Light greeen colour
         ctx.fillStyle = "#7b9b30ff"
     }else if (map_type === "ocean"){
-            ctx.fillStyle = "#0A1A3F"
+        // picks a blue colour
+        ctx.fillStyle = "#0A1A3F"
     }else if (map_type === "desert"){
-        // Pick a desert colour 
+        // Picks a desert colour 
         ctx.fillStyle = "#ebce77ff";
     } else if (map_type === "void"){
-        // Pick black colour
+        // Picks a black colour
         ctx.fillStyle ="#000000ff"
     } else if (map_type === "forrest"){
         ctx.fillStyle = "#2E7D32";
     }else{
-        console.log("Error in selecting ")
         ctx.fillStyle = "#7b9b30ff"
     }
-
-    // Deep Green
-    //  Sandy green (olive kinda)
-
-    // Deep vibrant green
-
     ctx.fillRect(0, 0, canvas.width, canvas.height); 
-
     // Grid Part
-    // This is the verticall lines
+    // This is the vertical lines
     // Column height is specified in below if statement its currently (16)
     ctx.lineWidth = 2;
     ctx.strokeStyle = "#ffffff"
@@ -140,19 +143,39 @@ function draw_grid(map_type){
         ctx.lineTo(canvas.width, j * canvas.height / 8);
         ctx.stroke();
     }
+    // Draw existing troops
+    for(let row = 0; row < game_array.length; row++ ){
+        for(let col = 0; col<game_array[row].length;col++){
+            let element = game_array[row][col]
+            // Temp filler needs to be changed
+            if (element == "b"){ // Blue standard guy
+                draw_grid_guy((col*canvas.width / 16),(row*canvas.height / 8),"blue")
+            }else if (element == "r") // Red Standard Guy
+                draw_grid_guy((col*canvas.width / 16),(row*canvas.height / 8),"red")
+            else{
+                // Nothing happens of note
+            }
+        }
+    }
 }
 
-
-function land_loss (){
-    game_array.forEach(grid_spot => {
-        //if grid_spot = []
-    });
+function start_button(){
+    let start_screen_bg = '#00e1ffff'
+    document.fonts.load('bold 48px "Pixelify Sans"').then(function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = start_screen_bg
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "bold 65px Pixelify Sans";
+        ctx.textAlign = "center";
+        ctx.fillText("Gridiots!", canvas.width / 2, canvas.height / 2)
+    }, 100);
 
 }
 
 function Start_Screen(user,enemy){
     let start_screen_bg = '#00e1ffff'
-    setTimeout(() => {
+    document.fonts.load('bold 48px "Pixelify Sans"').then(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = start_screen_bg
         ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -160,7 +183,7 @@ function Start_Screen(user,enemy){
         ctx.font = "bold 48px Pixelify Sans";
         ctx.textAlign = "center";
         ctx.fillText("Gridiots!", canvas.width / 2, canvas.height / 2)
-    }, 2100);
+    }, 100);
     setTimeout(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = start_screen_bg
@@ -174,114 +197,113 @@ function Start_Screen(user,enemy){
         ctx.fillText("VS", canvas.width / 2, (canvas.height / 2) )
         ctx.fillStyle =" #FF1744";
         ctx.fillText(`${enemy.name_()}`, canvas.width / 2, (canvas.height / 2) + (canvas.height/6))
-    }, 4200);
+    }, 3200);
+    setTimeout(() => {
+        console.log("Changed to game.")
+        stage = "place"
+    },8000)
+}
+
+function friends_bonus(team){
+    for (let r = 0; r < game_array.length; r++) {
+        for (let c = 0; c < game_array[r].length; c++) {
+            // AI helped with this if statement cause this statement would have been 10 hours of debugging lol
+            if (game_array[r][c] === team || r > 0 && game_array[r-1][c] === team || r < game_array.length-1 && game_array[r+1][c] === team || c > 0 && game_array[r][c-1] === team || c < game_array[r].length-1 && game_array[r][c+1] === team){
+                return 2;
+            }
+        }
+    }
+    return 0;
+}
+
+function battle_stats(user, enemy) {
+    let temp_battle_calc = Math.floor(Math.random() * 10);
+    for (let i = 0; i < temp_battle_calc; i++) {
+        let user_roll = Math.floor(Math.random() * 10) + friends_bonus("b");
+        let enemy_roll = Math.floor(Math.random() * 10) + friends_bonus("r");
+        if (user_roll > 8 && enemy_roll > 8) {
+            // both lucky
+        } else if (user_roll > 8) {
+            enemy.remove_random();
+        } else if (enemy_roll > 8) {
+            user.remove_random();
+        } else {
+            user.remove_random();
+            enemy.remove_random();
+        }
+    }
 }
 
 function battle(user,enemy){
-    // Battle Calculations before the screen is shown
-    /*
-    temp_battle_calc = Math.floor(Math.random()*10)
-    for(let i; i<temp_battle_calc;i++){
-        miracle_save_chance= Math.floor(Math.random()*10) 
-        if (miracle_save_chance > 8){
-            user.remove_random()
-        }else if (miracle_save_chance < 2){
-            enemy.remove_random()
+    ctx.font = "bold 48px Pixelify Sans";
+    ctx.textAlign = "center";
+    bg_colour = '#00e1ffff'
+    let dots = 0
+    let direction = 1
+    let loading_loop = setInterval(() => {
+        if (dots === 3){
+            direction = -1
+        }else if(dots === 0){
+            direction = 1
         }else{
-            enemy.remove_random()
-            user.remove_random()
+            // Do nothing
         }
-    }
-    */
-    // The classic ... loading screen for this 
-    /*
-    setTimeout(() => {
-        bg_colour = '#00e1ffff'
+        dots+= direction 
+        // janky joining thing based on count of dots
+        let dots_ = ".".repeat(dots)
+        let message = `Fighting${dots_}`
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = bg_colour
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = "#ffffff"
-
-    */
-    ctx.font = "bold 48px Pixelify Sans";
-    ctx.textAlign = "center";
-    bg_colour = '#00e1ffff'
-    for (let i = 0; i <= 3; i++) {
+        ctx.fillText(message, canvas.width / 2, canvas.height / 2)
+    }, 600);
+    setTimeout(() => {
+        clearInterval(loading_loop)
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = bg_colour;
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = "#ffffff"
+        ctx.fillText("Battle Complete!", canvas.width / 2, canvas.height / 2)
         setTimeout(() => {
-            // janky joining thing based on count of i
-            let dots = ".".repeat(i)
-            let message = `Fighting${dots}`
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = bg_colour;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ffffff";
-            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-        }, 600 * i); // stagger each iteration
-    }
-}
+            // battle calcs
+            battle_stats(user,enemy)
+            stage = "place"
+            round_counter+=1
+        }, 1000); 
+    }, 5000);
 
-function troop(){
-    // Maybe add more in if scope allows
-    
 }
-
-function reinforcements(user,bot){
-    // Need to add in an overlay of items
-    troop_types = ["standard"]
-    // Maybe add more in if scope allows
-    let reinforcements_ = []
-    let reinforcements_rand = Math.floor(Math.random()*10)
-    for(let i = 0;i< reinforcements_rand;i++ ){
-        reinforcements_.push(grid_guy_());
-        console.log(reinforcements_)
-        bot.add_reinfocements()
-    }
-}
-// Changed mind will combine functions
 
 function trace_known_grids(){
+    console.log("Tracing grid")
     ctx.lineWidth = 2;
     width_rect = canvas.width/16
     height_rect = canvas.height/8
-    for (let row = 0; row < grid.length; row++) {
-        for (let col = 0; col < grid[row].length; col++) {
-            let cell_val = game[row][col];
-            if (cell_val = "blue"){
+    for (let row = 0; row < game_array.length; row++) {
+        for (let col = 0; col < game_array[row].length; col++) {
+            let cell_val = game_array[row][col];
+            if (cell_val === "b"){
                 ctx.strokeStyle = "#2979FF"
-            }else if (cell_val = "red"){
-            ctx.strokeStyle =" #FF1744"; 
-            }
-            else if(cell_val = "no_mans_land"){
-                ctx.strokeStyle ="#7A7A7A";
+                ctx.strokeRect(col * width_rect,row * height_rect,width_rect,height_rect);
+            }else if (cell_val === "r"){
+                ctx.strokeStyle =" #FF1744"; 
                 ctx.strokeRect(col * width_rect,row * height_rect,width_rect,height_rect);
             }else{
                 // DO nothing
             }
         }
     }
-    // Blue team
-    // No mans land
-
-    // Not placed colour
-    // The red team outline 
-
-    // Need to caculate what values will change, will rely upon code simlar to map by splitting the same way.
 }
 
-function draw_grid_guy(x,y,team){
-    if (team = "red"){
-        const img = new Image()
-        img.src = '../images/right.png';
-        img.onload = function(){
-            ctx.drawImage(img,0,0,x,y)
-        }
-    }else if (team = "blue"){
-        const img = new Image()
-        img.src = '../images/left.png';
-        img.onload = function(){
-            ctx.drawImage(img,0,0,x,y)
-        }
-    }
+function draw_grid_guy(x,y){
+    const img = new Image()
+    img.src = '../images/gridiot.png';
+    img.onload = function() {
+        let cellWidth = canvas.width / 16;
+        let cellHeight = canvas.height / 8;
+        ctx.drawImage(img, x, y, cellWidth, cellHeight);
+    };
 }
 
 function update_user_info(message){
@@ -289,8 +311,47 @@ function update_user_info(message){
     myElement.textContent = message;
 }
 
+function place_stage(){
+    draw_grid(location) 
+    update_user_info("Reinforcements arriving...")
+    setTimeout(() => {},30000)
+
+    trace_known_grids()
+    let reinforcements_rand = Math.floor(Math.random()*10)
+    setTimeout(() => {
+        update_user_info(`You can place ${reinforcements_rand} troops`)
+        trace_known_grids()  
+    },2000)
+
+}
+
+function scoring(){
+    // Very simple system that checks the amount of people for each team at the end
+    let red_points = 0
+    let blue_points = 0
+    for (let row = 0; row < game_array.length; row++) {
+        for (let col = 0; col < game_array[row].length; col++) {
+            let cell_val = game_array[row][col];
+            if (cell_val === "r"){
+                red_points+=1
+            }else if (cell_val === "b"){
+                blue_points+=1
+            }else{
+                // DO nothing
+            }
+        }
+    }
+}
 // Main function
 function main(){
+    // Hide button
+    const start_btn = document.getElementById("start_btn");
+    start_btn.style.display = "none";
+
+    // Start Audio
+    const audio = new Audio('../music/funky-quirky-upbeat-commercial-music-392401.mp3');
+    audio.play();
+    audio.volume = 0.5;
     // Fetch info from input page
     let location = localStorage.getItem("selected_map");
     // Check if there is anything. 
@@ -300,60 +361,42 @@ function main(){
     }
     // Set all of the infomation
     stage = "start"
-    let user_ = new user("You")
+    let user_ = new player("You")
     let enemy_ = new bot()
     //let running = true
     Start_Screen(user_, enemy_, () => {
         stage = "place"; 
         console.log("Start completed")
     });
+    // The click register outside of the loop
+    document.addEventListener("click", function(event) {
+        if (stage === "place"){
+            // Adjust click coordinates to canvas space
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            place(x, y, "blue")
+            console.log(`X = ${x} ,  Y = ${y}`);
+        }
+    });
+    // Core loop cause JS hates while loops for some reason lol
     setInterval(() => {
         if (stage === "place"){
-            update_user_info("Reinforcements arriving")
-            draw_grid(location) 
-            trace_known_grids()
-            reinforcements(user_,enemy_)       
-            update_user_info("Reinforcements arriving")
-            update_user_info("Place your troops")
-            document.addEventListener("click", function(event) {
-                // debuging statement
-                console.log(`X = ${event.clientX} ,  Y = ${event.clientY}`);
-                place(event.clientX,event.clientY,"blue")
-            }), 
-            trace_known_grids()
-
-            //
-        } else if (stage === "reinforcements"){ 
-            // The reinforcements stage is the arrival of troops in hotbar
-            // to place and directly triggers the next stage (placing)
+            place_stage()
+            // Calls the function for simplification
         } else if (stage === "start"){
             // No action
         } else if (stage === "fighting"){
-            stage = battle(user_,enemy_)
+            battle(user_,enemy_)
         }else if (stage === "scoring"){
-            window.location.href = "/index.html";
-
+            scoring()
+            setTimeout(() => {
+                window.location.href = "/index.html";
+            }, 2000);
+            
         }else{
             alert("Something has gone wrong, please reload and try again.");
         }
-    }, 4100);
+    }, 1000);
 }
-
-
-/*
-game_array.forEach(element => {
-        // Temp filler needs to be changed
-        let x = 0
-        let y = 0
-        if (element == "p"){ // Blue standard guy
-            console.log("Default grid guy")
-            draw_grid_guy(x,y)
-            i+=1
-        }else if (element == "o") // Red Standard Guy
-            console.log("red guy")
-        // Can expand if scope allows multiple types of troops
-    });
-*/
-
-//main()
-battle("nah","egg")
+start_button()

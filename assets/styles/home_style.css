@@ -1,6 +1,9 @@
- h3 {
-    color:black;
+h3 {
+    color:rgb(255, 255, 255);
+}
+body {
+    color:aqua;
 }
 #buttons{
-    color:aqua;
+    color:rgb(255, 255, 255);
 }
