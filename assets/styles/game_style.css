@@ -8,3 +8,8 @@ canvas{
   image-rendering: pixelated;
   border: none;
 }
+div{
+  position: absolute;
+  bottom: -95%;
+  left: -95%; 
+}

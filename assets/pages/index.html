@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang = "en">
+<header>
+    <title>Gridiots</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <link rel = "stylesheet" href = "../styles/home_style.css">
+    
+</header>
+<script>
+    function redirect_(){
+        let inputValue = document.getElementById("Map_Options").value;
+        localStorage.setItem("selected_map", inputValue);
+        window.location.href = 'game.html';
+    }
+   
+</script>
+<body>
+    <h1> Gridiots</h1>
+    <h3>Rules for Gridiots</h3> 
+    <ol>
+        <li> The game shows both players</li>
+        <li> Each round you are shown your reinforcements and then can then place them </li>
+        <li>Dealer is randomly selected</li>
+        <li>A betting round occurs (starting on the dealer). In a clockwise order players can  bet or fold. (Players must all match the bet or can fold)</li>
+        <li>The dealer then flipsthe four community coins.</li>
+        <li> The rounds will repeat for 5 rounds</li>
+        <li>Whoever has the most area wins</li>
+    </ol>
+    <h3>Map Options</h3>
+    <select id="Map_Options">
+        <option value="Standard (Grasslands)" selected>Grasslands</option>
+        <option value="Forrest">Forrest</option>
+        <option value="Ocean">Ocean</option>
+        <option value="Desert">Desert</option>
+        <option value="Void">Void</option>
+    </select>
+    <button onclick = "redirect_()">Start Game</button>
+</html>
+
