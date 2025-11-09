@@ -13,7 +13,10 @@ Rules
         <li> The rounds will repeat for 5 rounds</li>
         <li>Whoever has the most area wins!</li>
     <ol>
+
 ## Demo
+Link to page: https://riley-d-1.github.io/Gridiots/assets/pages/index.html
+
 ![alt text](demo/Screenshot_Showcase.png)
 
 Credit to Pixabay for free music. 
