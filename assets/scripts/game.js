@@ -284,6 +284,7 @@ function battle(user, enemy) {
                 stage = "scoring";
             } else {
                 stage = "place";
+                place_stage();
             }
         }, 1000);
     }, 5000);
@@ -370,7 +371,7 @@ function scoring(){
 
 // Main function
 function main(){
-    let battle_in_progress = false;
+    battle_in_progress = false;
     // Hide button
     const start_btn = document.getElementById("start_btn");
     start_btn.style.display = "none";
@@ -423,7 +424,7 @@ function main(){
         if (stage === "place"){
             draw_grid(location);
             trace_known_grids();
-            // 
+            battle_in_progress = false
         } else if (stage === "start"){
             // No action
         } else if (stage === "fighting") {
@@ -434,12 +435,12 @@ function main(){
         }else if (stage === "scoring"){
             scoring()
             setTimeout(() => {
-                window.location.href = "assets/pages/index.html";
+                window.location.href = "/index.html";
             }, 2000);
             
         }else{
             alert("Something has gone wrong, please reload and try again.");
         }
-    }, 1000);
+    }, 100);
 }
 start_button()
