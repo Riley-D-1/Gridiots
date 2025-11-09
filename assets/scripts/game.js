@@ -179,6 +179,7 @@ function Start_Screen(user,enemy){
 
 function battle(user,enemy){
     // Battle Calculations before the screen is shown
+    /*
     temp_battle_calc = Math.floor(Math.random()*10)
     for(let i; i<temp_battle_calc;i++){
         miracle_save_chance= Math.floor(Math.random()*10) 
@@ -191,28 +192,32 @@ function battle(user,enemy){
             user.remove_random()
         }
     }
+    */
     // The classic ... loading screen for this 
+    /*
     setTimeout(() => {
         bg_colour = '#00e1ffff'
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = bg_colour
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         ctx.fillStyle = "#ffffff"
-        ctx.font = "bold 48px Pixelify Sans";
-        ctx.textAlign = "center";
-        for (let i =0; i <= 3; i++){
-            for(let i =0; i <= 3; i++){
-                setTimeout(() => {
-                    message = `${text_temp} win the pot!`
-                    ctx.clearRect(0, 0, canvas.width, canvas.height)
-                    ctx.fillStyle = bg_colour
-                    ctx.fillRect(0, 0, canvas.width, canvas.height)
-                    ctx.fillStyle = "#ffffff"
-                    ctx.fillText(message, canvas.width / 2, canvas.height / 2)
-                },600);
-            }
-        }
-    },4100);
+
+    */
+    ctx.font = "bold 48px Pixelify Sans";
+    ctx.textAlign = "center";
+    bg_colour = '#00e1ffff'
+    for (let i = 0; i <= 3; i++) {
+        setTimeout(() => {
+            // janky joining thing based on count of i
+            let dots = ".".repeat(i)
+            let message = `Fighting${dots}`
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = bg_colour;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+        }, 600 * i); // stagger each iteration
+    }
 }
 
 function troop(){
@@ -350,5 +355,5 @@ game_array.forEach(element => {
     });
 */
 
-main()
-//draw_grid("standard");
+//main()
+battle("nah","egg")
