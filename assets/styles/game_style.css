@@ -10,8 +10,10 @@ canvas{
 }
 #round_info{
   position: absolute;
-  bottom: -95%;
-  left: -95%; 
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 #start_btn {
   top: 65%;

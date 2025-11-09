@@ -5,10 +5,11 @@ canvas.height = window.innerHeight;
 ctx.imageSmoothingEnabled = false;
 let grid_people = []
 let round_counter = 0
+let user_reinforcements = 0;
+let enemy_reinforcements = 0;
 // 16 acros ways and 8 down
 
 let game_array = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -44,12 +45,21 @@ class bot{
         this.name = name_gen(1)
         this.troops_pos = []; // store troop position
     }
-    bot_place(){
-        // pick a random row and column
-        let row = Math.floor(Math.random() * game_array.length);
-        let col = Math.floor(Math.random() * game_array[row].length);
-        // place the value
-        game_array[row][col] = "p";
+    bot_place(enemy_reinforcements){
+        for (let i = 0; i < enemy_reinforcements; i++) {
+            let row = Math.floor(Math.random() * game_array.length);
+            let col = Math.floor(Math.random() * game_array[row].length);
+
+            // only place on empty cells
+            if (game_array[row][col] === 0) {
+                enemy_.add_troop(row, col);
+            } else {
+                i--; // retry if occupied
+            }
+        }
+    
+        // Once both sides are done, move to fighting
+        stage = "fighting";
     }
     name_(){
         return this.name
@@ -160,6 +170,8 @@ function draw_grid(map_type){
 }
 
 function start_button(){
+    const round_info_ = document.getElementById("round_info");
+    round_info_.style.display = "none";
     let start_screen_bg = '#00e1ffff'
     document.fonts.load('bold 48px "Pixelify Sans"').then(function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -201,6 +213,7 @@ function Start_Screen(user,enemy){
     setTimeout(() => {
         console.log("Changed to game.")
         stage = "place"
+        place_stage(location);
     },8000)
 }
 
@@ -312,18 +325,18 @@ function update_user_info(message){
 }
 
 function place_stage(){
-    draw_grid(location) 
-    update_user_info("Reinforcements arriving...")
-    setTimeout(() => {},30000)
-
-    trace_known_grids()
-    let reinforcements_rand = Math.floor(Math.random()*10)
+    const round_info = document.getElementById("round_info");
+    round_info.style.display = "";
+    draw_grid(location);
+    update_user_info("Reinforcements arriving...");
+    user_reinforcements = Math.floor(Math.random() * 10+1);
+    enemy_reinforcements = Math.floor(Math.random() * 10+1);
     setTimeout(() => {
-        update_user_info(`You can place ${reinforcements_rand} troops`)
-        trace_known_grids()  
-    },2000)
-
+        update_user_info(`You can place ${user_reinforcements} troops`);
+        trace_known_grids();
+    }, 2000);
 }
+
 
 function scoring(){
     // Very simple system that checks the amount of people for each team at the end
@@ -366,28 +379,37 @@ function main(){
     //let running = true
     Start_Screen(user_, enemy_, () => {
         stage = "place"; 
+        place_stage(location);
         console.log("Start completed")
     });
     // The click register outside of the loop
     document.addEventListener("click", function(event) {
-        if (stage === "place"){
-            // Adjust click coordinates to canvas space
+        if (stage === "place" && user_reinforcements > 0){
             const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+            const x = event.clientX - rect.left
+            const y = event.clientY - rect.top
             place(x, y, "blue")
-            console.log(`X = ${x} ,  Y = ${y}`);
+            user_reinforcements--
+            update_user_info(`You can place ${user_reinforcements} troops`)
+
+            if (user_reinforcements === 0){
+                enemy_.bot_place(); // once user is done, enemy places
+            }
         }
     });
     // Core loop cause JS hates while loops for some reason lol
     setInterval(() => {
         if (stage === "place"){
-            place_stage()
-            // Calls the function for simplification
+            draw_grid(location);
+            trace_known_grids();
+            // 
         } else if (stage === "start"){
             // No action
         } else if (stage === "fighting"){
             battle(user_,enemy_)
+            if (round_counter >= 5){
+                stage = "scoring";
+            }
         }else if (stage === "scoring"){
             scoring()
             setTimeout(() => {
